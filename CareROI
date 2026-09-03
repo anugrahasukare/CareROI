@@ -1,0 +1,2672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CareROI — Hospital Intelligence Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+    margin:0;
+    font-family:Inter,Segoe UI,Arial,sans-serif;
+    background:#f5f7fb;
+    color:#172033
+}
+
+.app{display:flex;min-height:100vh}
+
+.sidebar{
+    width:245px;
+    background:#101828;
+    color:#fff;
+    padding:24px 16px;
+    position:fixed;
+    height:100vh;
+    overflow-y:auto
+}
+
+.logo{
+    font-size:22px;
+    font-weight:800;
+    padding:8px 12px 30px
+}
+
+.logo span{
+    font-weight:400;
+    color:#98a2b3
+}
+
+.nav button{
+    display:block;
+    width:100%;
+    padding:13px 14px;
+    margin:5px 0;
+    border:0;
+    border-radius:9px;
+    background:transparent;
+    color:#c9d1dc;
+    text-align:left;
+    font-size:14px;
+    cursor:pointer
+}
+
+.nav button.active,
+.nav button:hover{
+    background:#1d2939;
+    color:#fff
+}
+
+.main{
+    margin-left:245px;
+    width:calc(100% - 245px);
+    padding:28px 34px
+}
+
+.top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:24px
+}
+
+.top h1{
+    margin:0;
+    font-size:27px
+}
+
+.top p{
+    margin:5px 0 0;
+    color:#667085;
+    font-size:14px
+}
+
+select,.btn{
+    border:1px solid #d0d5dd;
+    background:#fff;
+    padding:10px 13px;
+    border-radius:8px
+}
+
+.btn{
+    cursor:pointer;
+    font-weight:600
+}
+
+.btn.primary{
+    background:#175cd3;
+    color:white;
+    border-color:#175cd3
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px
+}
+
+.card{
+    background:#fff;
+    border:1px solid #eaecf0;
+    border-radius:12px;
+    padding:20px;
+    box-shadow:0 1px 2px #00000008
+}
+
+.label{
+    color:#667085;
+    font-size:13px
+}
+
+.value{
+    font-size:27px;
+    font-weight:750;
+    margin:9px 0
+}
+
+.delta{
+    font-size:12px;
+    color:#039855
+}
+
+.delta.warning{
+    color:#b54708
+}
+
+.delta.danger{
+    color:#b42318
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1.5fr 1fr;
+    gap:18px;
+    margin-top:18px
+}
+
+.grid3{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:18px;
+    margin-top:18px
+}
+
+.panel{
+    background:#fff;
+    border:1px solid #eaecf0;
+    border-radius:12px;
+    padding:20px
+}
+
+.panel h3{
+    margin:0 0 16px;
+    font-size:16px
+}
+
+.panel h4{
+    margin:0 0 8px
+}
+
+.chartbox{
+    height:290px
+}
+
+.smallchart{
+    height:230px
+}
+
+.insight{
+    display:flex;
+    gap:12px;
+    padding:14px;
+    border:1px solid #eaecf0;
+    border-radius:9px;
+    margin-bottom:10px
+}
+
+.dot{
+    width:9px;
+    height:9px;
+    min-width:9px;
+    border-radius:50%;
+    margin-top:5px;
+    background:#12b76a
+}
+
+.warn .dot{background:#f79009}
+.bad .dot{background:#f04438}
+
+.insight b{
+    font-size:14px
+}
+
+.insight p{
+    margin:5px 0 0;
+    color:#667085;
+    font-size:12px;
+    line-height:1.5
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px
+}
+
+th,td{
+    text-align:left;
+    padding:13px 10px;
+    border-bottom:1px solid #eaecf0
+}
+
+th{
+    color:#667085;
+    font-weight:600
+}
+
+.pill{
+    padding:4px 8px;
+    border-radius:20px;
+    font-size:11px
+}
+
+.good{
+    background:#ecfdf3;
+    color:#027a48
+}
+
+.medium{
+    background:#fffaeb;
+    color:#b54708
+}
+
+.poor{
+    background:#fef3f2;
+    color:#b42318
+}
+
+.blue{
+    background:#eff8ff;
+    color:#175cd3
+}
+
+.page{
+    display:none
+}
+
+.page.active{
+    display:block
+}
+
+.formgrid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px
+}
+
+.formgrid label{
+    font-size:12px;
+    color:#667085
+}
+
+.formgrid input,
+.formgrid select{
+    width:100%;
+    margin-top:6px;
+    padding:10px;
+    border:1px solid #d0d5dd;
+    border-radius:8px
+}
+
+.result{
+    margin-top:18px;
+    padding:18px;
+    background:#f8fafc;
+    border-radius:10px;
+    line-height:1.8
+}
+
+.kpi{
+    padding:16px;
+    border-radius:10px;
+    background:#f8fafc;
+    margin-bottom:10px
+}
+
+.kpi-title{
+    color:#667085;
+    font-size:12px
+}
+
+.kpi-value{
+    font-size:22px;
+    font-weight:700;
+    margin-top:5px
+}
+
+.progress{
+    height:8px;
+    background:#eaecf0;
+    border-radius:20px;
+    overflow:hidden;
+    margin-top:8px
+}
+
+.progress div{
+    height:100%;
+    background:#175cd3
+}
+
+.section-title{
+    margin-top:28px;
+    margin-bottom:12px
+}
+
+.decision{
+    border-left:4px solid #175cd3;
+    padding:15px;
+    background:#f8fafc;
+    margin-bottom:10px;
+    border-radius:6px
+}
+
+.decision strong{
+    display:block;
+    margin-bottom:5px
+}
+
+.metric-good{color:#027a48}
+.metric-warning{color:#b54708}
+.metric-bad{color:#b42318}
+
+@media(max-width:1100px){
+    .cards{
+        grid-template-columns:repeat(2,1fr)
+    }
+
+    .grid,.grid3{
+        grid-template-columns:1fr
+    }
+
+    .formgrid{
+        grid-template-columns:1fr 1fr
+    }
+}
+
+@media(max-width:700px){
+    .sidebar{
+        width:190px
+    }
+
+    .main{
+        margin-left:190px;
+        width:calc(100% - 190px);
+        padding:20px
+    }
+
+    .cards{
+        grid-template-columns:1fr
+    }
+
+    .formgrid{
+        grid-template-columns:1fr
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
+
+<div class="logo">
+CareROI <span>Intelligence</span>
+</div>
+
+<div class="nav">
+
+<button class="active"
+onclick="showPage('overview',this)">
+◈ Executive Overview
+</button>
+
+<button onclick="showPage('financial',this)">
+₹ Financial Analytics
+</button>
+
+<button onclick="showPage('resources',this)">
+◫ Resources
+</button>
+
+<button onclick="showPage('operations',this)">
+▦ Operations
+</button>
+
+<button onclick="showPage('quality',this)">
+♥ Quality & Safety
+</button>
+
+<button onclick="showPage('outcomes',this)">
+◉ Patient Outcomes
+</button>
+
+<button onclick="showPage('departments',this)">
+▤ Departments
+</button>
+
+<button onclick="showPage('roi',this)">
+◎ ROI Calculator
+</button>
+
+<button onclick="showPage('predictions',this)">
+⌁ Predictions
+</button>
+
+<button onclick="showPage('decisions',this)">
+✓ Decision Support
+</button>
+
+</div>
+</aside>
+
+
+<main class="main">
+
+
+<!-- ================================================= -->
+<!-- OVERVIEW -->
+<!-- ================================================= -->
+
+<section id="overview" class="page active">
+
+<div class="top">
+
+<div>
+<h1>Hospital Performance Overview</h1>
+<p>Centralized financial, operational, quality and patient intelligence</p>
+</div>
+
+<select onchange="updatePeriod(this.value)">
+<option>Last 30 days</option>
+<option>Last 90 days</option>
+<option>Year to date</option>
+</select>
+
+</div>
+
+
+<div class="cards">
+
+<div class="card">
+<div class="label">Total Revenue</div>
+<div class="value" id="rev">₹45.8L</div>
+<div class="delta">↑ 8.4% vs previous period</div>
+</div>
+
+<div class="card">
+<div class="label">Operating Cost</div>
+<div class="value" id="cost">₹28.4L</div>
+<div class="delta">↓ 3.1% vs previous period</div>
+</div>
+
+<div class="card">
+<div class="label">Staff Utilization</div>
+<div class="value">82%</div>
+<div class="delta">↑ 5.2% efficiency</div>
+</div>
+
+<div class="card">
+<div class="label">Bed Occupancy</div>
+<div class="value">84.5%</div>
+<div class="delta">186 / 220 beds occupied</div>
+</div>
+
+<div class="card">
+<div class="label">Patient Throughput</div>
+<div class="value">2,170</div>
+<div class="delta">↑ 7.8% this period</div>
+</div>
+
+<div class="card">
+<div class="label">Readmission Rate</div>
+<div class="value">6.4%</div>
+<div class="delta warning">Target: &lt; 5%</div>
+</div>
+
+<div class="card">
+<div class="label">Patient Satisfaction</div>
+<div class="value">87%</div>
+<div class="delta">↑ 3.6% improvement</div>
+</div>
+
+<div class="card">
+<div class="label">Treatment Success</div>
+<div class="value">92%</div>
+<div class="delta">↑ 2.1% improvement</div>
+</div>
+
+</div>
+
+
+<div class="grid">
+
+<div class="panel">
+
+<h3>Department Efficiency</h3>
+
+<div class="chartbox">
+<canvas id="deptChart"></canvas>
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<h3>Management Insights</h3>
+
+<div class="insight">
+
+<div class="dot"></div>
+
+<div>
+<b>Cardiology is highly efficient</b>
+
+<p>
+90% staff utilization with strong revenue generation.
+</p>
+</div>
+
+</div>
+
+
+<div class="insight warn">
+
+<div class="dot"></div>
+
+<div>
+<b>Orthopedics needs review</b>
+
+<p>
+65% utilization and relatively high operating cost.
+</p>
+</div>
+
+</div>
+
+
+<div class="insight bad">
+
+<div class="dot"></div>
+
+<div>
+<b>Readmission rate above target</b>
+
+<p>
+Current readmission rate is 6.4%. Investigate high-risk treatment pathways.
+</p>
+</div>
+
+</div>
+
+
+<div class="insight">
+
+<div class="dot"></div>
+
+<div>
+<b>Patient satisfaction improving</b>
+
+<p>
+Satisfaction increased to 87%, primarily due to improved OPD experience.
+</p>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="panel" style="margin-top:18px">
+
+<h3>Institutional Health Score</h3>
+
+<div class="grid3">
+
+<div class="kpi">
+<div class="kpi-title">Financial Health</div>
+<div class="kpi-value metric-good">88 / 100</div>
+</div>
+
+<div class="kpi">
+<div class="kpi-title">Operational Efficiency</div>
+<div class="kpi-value metric-good">84 / 100</div>
+</div>
+
+<div class="kpi">
+<div class="kpi-title">Quality & Safety</div>
+<div class="kpi-value metric-warning">79 / 100</div>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- ================================================= -->
+<!-- FINANCIAL -->
+<!-- ================================================= -->
+
+<section id="financial" class="page">
+
+<div class="top">
+
+<div>
+<h1>Financial Analytics</h1>
+<p>Revenue, expenditure, profitability and cost efficiency</p>
+</div>
+
+</div>
+
+
+<div class="cards">
+
+<div class="card">
+<div class="label">Revenue</div>
+<div class="value">₹45.8L</div>
+<div class="delta">↑ 8.4%</div>
+</div>
+
+<div class="card">
+<div class="label">Expenditure</div>
+<div class="value">₹28.4L</div>
+<div class="delta warning">62% of revenue</div>
+</div>
+
+<div class="card">
+<div class="label">Operating Profit</div>
+<div class="value">₹17.4L</div>
+<div class="delta">38% margin</div>
+</div>
+
+<div class="card">
+<div class="label">Average Cost / Patient</div>
+<div class="value">₹6,215</div>
+<div class="delta">↓ 4.7%</div>
+</div>
+
+</div>
+
+
+<div class="grid">
+
+<div class="panel">
+
+<h3>Revenue vs Expenditure</h3>
+
+<div class="chartbox">
+<canvas id="financialChart"></canvas>
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<h3>Cost Distribution</h3>
+
+<div class="chartbox">
+<canvas id="costChart"></canvas>
+</div>
+
+</div>
+
+</div>
+
+
+<div class="panel" style="margin-top:18px">
+
+<h3>Cost per Service</h3>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Service</th>
+<th>Patients</th>
+<th>Revenue</th>
+<th>Total Cost</th>
+<th>Cost / Patient</th>
+<th>Margin</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+<td>Cardiology</td>
+<td>450</td>
+<td>₹20L</td>
+<td>₹12L</td>
+<td>₹2,667</td>
+<td><span class="pill good">40%</span></td>
+</tr>
+
+<tr>
+<td>Orthopedics</td>
+<td>500</td>
+<td>₹15L</td>
+<td>₹13L</td>
+<td>₹2,600</td>
+<td><span class="pill medium">13%</span></td>
+</tr>
+
+<tr>
+<td>General Medicine</td>
+<td>800</td>
+<td>₹10L</td>
+<td>₹8L</td>
+<td>₹1,000</td>
+<td><span class="pill good">20%</span></td>
+</tr>
+
+<tr>
+<td>Pediatrics</td>
+<td>420</td>
+<td>₹9L</td>
+<td>₹6.5L</td>
+<td>₹1,548</td>
+<td><span class="pill good">28%</span></td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+
+
+<!-- ================================================= -->
+<!-- RESOURCES -->
+<!-- ================================================= -->
+
+<section id="resources" class="page">
+
+<div class="top">
+
+<div>
+<h1>Resource Utilization</h1>
+<p>Staff, beds and equipment utilization</p>
+</div>
+
+</div>
+
+
+<div class="cards">
+
+<div class="card">
+<div class="label">Doctors</div>
+<div class="value">68</div>
+<div class="delta">84% utilized</div>
+</div>
+
+<div class="card">
+<div class="label">Nurses</div>
+<div class="value">142</div>
+<div class="delta">81% utilized</div>
+</div>
+
+<div class="card">
+<div class="label">Beds</div>
+<div class="value">186 / 220</div>
+<div class="delta">84.5% occupancy</div>
+</div>
+
+<div class="card">
+<div class="label">Equipment</div>
+<div class="value">76%</div>
+<div class="delta warning">24% unused capacity</div>
+</div>
+
+</div>
+
+
+<div class="grid">
+
+<div class="panel">
+
+<h3>Staff Utilization by Department</h3>
+
+<div class="chartbox">
+<canvas id="staffChart"></canvas>
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<h3>Bed Occupancy</h3>
+
+<div class="smallchart">
+<canvas id="bedChart"></canvas>
+</div>
+
+<div class="kpi">
+
+<div class="kpi-title">
+Current Occupancy
+</div>
+
+<div class="kpi-value">
+84.5%
+</div>
+
+<div class="progress">
+<div style="width:84.5%"></div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="panel" style="margin-top:18px">
+
+<h3>Equipment Utilization</h3>
+
+<table>
+
+<thead>
+<tr>
+<th>Equipment</th>
+<th>Available</th>
+<th>Used</th>
+<th>Utilization</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td>MRI</td>
+<td>2</td>
+<td>1.8</td>
+<td>90%</td>
+<td><span class="pill good">Optimal</span></td>
+</tr>
+
+<tr>
+<td>CT Scanner</td>
+<td>2</td>
+<td>1.5</td>
+<td>75%</td>
+<td><span class="pill medium">Monitor</span></td>
+</tr>
+
+<tr>
+<td>Ultrasound</td>
+<td>5</td>
+<td>3.1</td>
+<td>62%</td>
+<td><span class="pill medium">Underused</span></td>
+</tr>
+
+<tr>
+<td>Ventilators</td>
+<td>25</td>
+<td>21</td>
+<td>84%</td>
+<td><span class="pill good">Optimal</span></td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+
+
+<!-- ================================================= -->
+<!-- OPERATIONS -->
+<!-- ================================================= -->
+
+<section id="operations" class="page">
+
+<div class="top">
+
+<div>
+<h1>Hospital Operations</h1>
+<p>Patient throughput, waiting time and capacity utilization</p>
+</div>
+
+</div>
+
+
+<div class="cards">
+
+<div class="card">
+<div class="label">Patients / Month</div>
+<div class="value">2,170</div>
+<div class="delta">↑ 7.8%</div>
+</div>
+
+<div class="card">
+<div class="label">Average OPD Wait</div>
+<div class="value">38 min</div>
+<div class="delta warning">Target: &lt; 30 min</div>
+</div>
+
+<div class="card">
+<div class="label">Average Length of Stay</div>
+<div class="value">4.2 days</div>
+<div class="delta">↓ 0.4 days</div>
+</div>
+
+<div class="card">
+<div class="label">Bed Turnover</div>
+<div class="value">5.8</div>
+<div class="delta">↑ 4.2%</div>
+</div>
+
+</div>
+
+
+<div class="grid">
+
+<div class="panel">
+
+<h3>Patient Throughput</h3>
+
+<div class="chartbox">
+<canvas id="throughputChart"></canvas>
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<h3>Waiting Time Analysis</h3>
+
+<div class="chartbox">
+<canvas id="waitingChart"></canvas>
+</div>
+
+</div>
+
+</div>
+
+
+<div class="panel" style="margin-top:18px">
+
+<h3>Operational Bottlenecks</h3>
+
+<div class="insight bad">
+
+<div class="dot"></div>
+
+<div>
+<b>General OPD waiting time is high</b>
+<p>
+Average wait is 38 minutes. Consider additional registration and consultation capacity during peak hours.
+</p>
+</div>
+
+</div>
+
+
+<div class="insight warn">
+
+<div class="dot"></div>
+
+<div>
+<b>Orthopedics capacity is underused</b>
+<p>
+Staff utilization is 65%. Capacity can be shifted toward peak outpatient periods.
+</p>
+</div>
+
+</div>
+
+
+<div class="insight">
+
+<div class="dot"></div>
+
+<div>
+<b>Bed occupancy is healthy</b>
+<p>
+84.5% occupancy provides operational capacity while maintaining a safety buffer.
+</p>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- ================================================= -->
+<!-- QUALITY -->
+<!-- ================================================= -->
+
+<section id="quality" class="page">
+
+<div class="top">
+
+<div>
+<h1>Quality & Patient Safety</h1>
+<p>Clinical quality, safety events and hospital outcomes</p>
+</div>
+
+</div>
+
+
+<div class="cards">
+
+<div class="card">
+<div class="label">Readmission Rate</div>
+<div class="value">6.4%</div>
+<div class="delta warning">Above 5% target</div>
+</div>
+
+<div class="card">
+<div class="label">Mortality Rate</div>
+<div class="value">1.8%</div>
+<div class="delta">↓ 0.2%</div>
+</div>
+
+<div class="card">
+<div class="label">Complication Rate</div>
+<div class="value">3.1%</div>
+<div class="delta">↓ 0.5%</div>
+</div>
+
+<div class="card">
+<div class="label">Patient Safety Score</div>
+<div class="value">91%</div>
+<div class="delta">↑ 2.8%</div>
+</div>
+
+</div>
+
+
+<div class="grid">
+
+<div class="panel">
+
+<h3>Readmission & Complication Trends</h3>
+
+<div class="chartbox">
+<canvas id="qualityChart"></canvas>
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<h3>Safety Indicators</h3>
+
+<div class="insight">
+
+<div class="dot"></div>
+
+<div>
+<b>Medication errors</b>
+<p>0.7 incidents per 100 patients.</p>
+</div>
+
+</div>
+
+<div class="insight">
+
+<div class="dot"></div>
+
+<div>
+<b>Hospital-acquired infections</b>
+<p>1.2 cases per 1,000 patient days.</p>
+</div>
+
+</div>
+
+<div class="insight warn">
+
+<div class="dot"></div>
+
+<div>
+<b>Falls</b>
+<p>2.1 incidents per 1,000 patient days. Monitor high-risk wards.</p>
+</div>
+
+</div>
+
+<div class="insight">
+
+<div class="dot"></div>
+
+<div>
+<b>Patient identification compliance</b>
+<p>98.6% compliance.</p>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="panel" style="margin-top:18px">
+
+<h3>Quality Improvement Indicators</h3>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Indicator</th>
+<th>Current</th>
+<th>Target</th>
+<th>Performance</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+<td>Readmission</td>
+<td>6.4%</td>
+<td>&lt;5%</td>
+<td><span class="pill poor">Needs Improvement</span></td>
+</tr>
+
+<tr>
+<td>Medication Errors</td>
+<td>0.7 / 100</td>
+<td>&lt;1 / 100</td>
+<td><span class="pill good">Good</span></td>
+</tr>
+
+<tr>
+<td>Patient Falls</td>
+<td>2.1 / 1000 days</td>
+<td>&lt;2</td>
+<td><span class="pill medium">Monitor</span></td>
+</tr>
+
+<tr>
+<td>Infection Rate</td>
+<td>1.2 / 1000 days</td>
+<td>&lt;2</td>
+<td><span class="pill good">Good</span></td>
+</tr>
+
+<tr>
+<td>Safety Compliance</td>
+<td>98.6%</td>
+<td>&gt;95%</td>
+<td><span class="pill good">Excellent</span></td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+
+
+<!-- ================================================= -->
+<!-- OUTCOMES -->
+<!-- ================================================= -->
+
+<section id="outcomes" class="page">
+
+<div class="top">
+
+<div>
+<h1>Patient Outcomes</h1>
+<p>Measure treatment effectiveness and patient experience</p>
+</div>
+
+</div>
+
+
+<div class="cards">
+
+<div class="card">
+<div class="label">Treatment Success</div>
+<div class="value">92%</div>
+<div class="delta">↑ 2.1%</div>
+</div>
+
+<div class="card">
+<div class="label">Patient Satisfaction</div>
+<div class="value">87%</div>
+<div class="delta">↑ 3.6%</div>
+</div>
+
+<div class="card">
+<div class="label">Discharge Improvement</div>
+<div class="value">89%</div>
+<div class="delta">↑ 4.1%</div>
+</div>
+
+<div class="card">
+<div class="label">Follow-up Compliance</div>
+<div class="value">82%</div>
+<div class="delta warning">Target: 90%</div>
+</div>
+
+</div>
+
+
+<div class="grid">
+
+<div class="panel">
+
+<h3>Treatment Outcomes</h3>
+
+<div class="chartbox">
+<canvas id="outcomeChart"></canvas>
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<h3>Patient Satisfaction</h3>
+
+<div class="chartbox">
+<canvas id="satisfactionChart"></canvas>
+</div>
+
+</div>
+
+</div>
+
+
+<div class="panel" style="margin-top:18px">
+
+<h3>Outcome Indicators</h3>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Department</th>
+<th>Treatment Success</th>
+<th>Satisfaction</th>
+<th>Readmission</th>
+<th>Outcome</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+<td>Cardiology</td>
+<td>95%</td>
+<td>91%</td>
+<td>4.2%</td>
+<td><span class="pill good">Excellent</span></td>
+</tr>
+
+<tr>
+<td>Orthopedics</td>
+<td>88%</td>
+<td>82%</td>
+<td>7.5%</td>
+<td><span class="pill medium">Monitor</span></td>
+</tr>
+
+<tr>
+<td>General Medicine</td>
+<td>91%</td>
+<td>86%</td>
+<td>6.1%</td>
+<td><span class="pill good">Good</span></td>
+</tr>
+
+<tr>
+<td>Pediatrics</td>
+<td>94%</td>
+<td>89%</td>
+<td>4.8%</td>
+<td><span class="pill good">Good</span></td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+
+
+<!-- ================================================= -->
+<!-- DEPARTMENTS -->
+<!-- ================================================= -->
+
+<section id="departments" class="page">
+
+<div class="top">
+
+<div>
+<h1>Department Analysis</h1>
+<p>Compare financial, operational and clinical performance</p>
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Department</th>
+<th>Revenue</th>
+<th>Cost</th>
+<th>Profit</th>
+<th>Patients</th>
+<th>Utilization</th>
+<th>Readmission</th>
+<th>Outcome</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+<td><b>Cardiology</b></td>
+<td>₹20L</td>
+<td>₹12L</td>
+<td>₹8L</td>
+<td>450</td>
+<td>90%</td>
+<td>4.2%</td>
+<td><span class="pill good">High</span></td>
+</tr>
+
+<tr>
+<td><b>Orthopedics</b></td>
+<td>₹15L</td>
+<td>₹13L</td>
+<td>₹2L</td>
+<td>500</td>
+<td>65%</td>
+<td>7.5%</td>
+<td><span class="pill poor">Low</span></td>
+</tr>
+
+<tr>
+<td><b>General Medicine</b></td>
+<td>₹10L</td>
+<td>₹8L</td>
+<td>₹2L</td>
+<td>800</td>
+<td>95%</td>
+<td>6.1%</td>
+<td><span class="pill good">High</span></td>
+</tr>
+
+<tr>
+<td><b>Pediatrics</b></td>
+<td>₹9L</td>
+<td>₹6.5L</td>
+<td>₹2.5L</td>
+<td>420</td>
+<td>78%</td>
+<td>4.8%</td>
+<td><span class="pill good">High</span></td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+
+<div class="grid3">
+
+<div class="panel">
+
+<h3>Top Performer</h3>
+
+<div class="kpi">
+
+<div class="kpi-title">Cardiology</div>
+
+<div class="kpi-value metric-good">
+90% utilization
+</div>
+
+<p>
+High revenue generation, strong treatment outcomes and low readmission.
+</p>
+
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<h3>Needs Attention</h3>
+
+<div class="kpi">
+
+<div class="kpi-title">Orthopedics</div>
+
+<div class="kpi-value metric-bad">
+65% utilization
+</div>
+
+<p>
+Low utilization combined with higher readmission rate.
+</p>
+
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<h3>Highest Patient Volume</h3>
+
+<div class="kpi">
+
+<div class="kpi-title">General Medicine</div>
+
+<div class="kpi-value">
+800 patients
+</div>
+
+<p>
+95% staff utilization indicates strong demand.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- ================================================= -->
+<!-- ROI -->
+<!-- ================================================= -->
+
+<section id="roi" class="page">
+
+<div class="top">
+
+<div>
+<h1>ROI & Investment Calculator</h1>
+<p>Evaluate whether a hospital investment creates financial value</p>
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<div class="formgrid">
+
+<label>
+Investment (₹)
+<input id="investment" type="number" value="1000000">
+</label>
+
+<label>
+Annual Revenue / Benefit (₹)
+<input id="benefit" type="number" value="1500000">
+</label>
+
+<label>
+Annual Operating Cost (₹)
+<input id="roiCost" type="number" value="500000">
+</label>
+
+</div>
+
+
+<button class="btn primary"
+style="margin-top:16px"
+onclick="calcROI()">
+Calculate ROI
+</button>
+
+
+<div class="result" id="roiResult">
+Enter values and calculate to see estimated ROI.
+</div>
+
+</div>
+
+
+<div class="grid3">
+
+<div class="panel">
+
+<h3>Investment Decision</h3>
+
+<div class="kpi">
+
+<div class="kpi-title">
+Recommended if ROI is
+</div>
+
+<div class="kpi-value metric-good">
+&gt; 20%
+</div>
+
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<h3>Payback Period</h3>
+
+<div class="kpi">
+
+<div class="kpi-title">
+Ideal target
+</div>
+
+<div class="kpi-value">
+&lt; 3 Years
+</div>
+
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<h3>Decision Rule</h3>
+
+<div class="kpi">
+
+<div class="kpi-title">
+Expected Benefit
+</div>
+
+<div class="kpi-value">
+&gt; Total Cost
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- ================================================= -->
+<!-- PREDICTIONS -->
+<!-- ================================================= -->
+
+<section id="predictions" class="page">
+
+<div class="top">
+
+<div>
+<h1>Predictive Intelligence</h1>
+<p>Forecast future patient demand, costs and resource requirements</p>
+</div>
+
+</div>
+
+
+<div class="cards">
+
+<div class="card">
+<div class="label">Next Month Patients</div>
+<div class="value">2,610</div>
+<div class="delta">↑ 6.2% forecast</div>
+</div>
+
+<div class="card">
+<div class="label">Expected Cost</div>
+<div class="value">₹31.2L</div>
+<div class="delta warning">↑ 9.8% forecast</div>
+</div>
+
+<div class="card">
+<div class="label">Predicted Bed Demand</div>
+<div class="value">201</div>
+<div class="delta warning">91% occupancy</div>
+</div>
+
+<div class="card">
+<div class="label">Nurse Demand</div>
+<div class="value">153</div>
+<div class="delta warning">+11 nurses required</div>
+</div>
+
+</div>
+
+
+<div class="grid">
+
+<div class="panel">
+
+<h3>Patient Volume Forecast</h3>
+
+<div class="chartbox">
+<canvas id="forecastChart"></canvas>
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<h3>Cost Forecast</h3>
+
+<div class="chartbox">
+<canvas id="costForecastChart"></canvas>
+</div>
+
+</div>
+
+</div>
+
+
+<div class="panel" style="margin-top:18px">
+
+<h3>Resource Demand Prediction</h3>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Resource</th>
+<th>Current</th>
+<th>Predicted</th>
+<th>Additional Requirement</th>
+<th>Action</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+<td>Beds</td>
+<td>186</td>
+<td>201</td>
+<td>15</td>
+<td><span class="pill medium">Prepare Capacity</span></td>
+</tr>
+
+<tr>
+<td>Nurses</td>
+<td>142</td>
+<td>153</td>
+<td>11</td>
+<td><span class="pill medium">Plan Recruitment</span></td>
+</tr>
+
+<tr>
+<td>Doctors</td>
+<td>68</td>
+<td>72</td>
+<td>4</td>
+<td><span class="pill medium">Schedule Coverage</span></td>
+</tr>
+
+<tr>
+<td>CT Scans</td>
+<td>310</td>
+<td>345</td>
+<td>35</td>
+<td><span class="pill good">Increase Slots</span></td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+
+<div class="panel" style="margin-top:18px">
+
+<h3>Early Warning Indicators</h3>
+
+<div class="insight warn">
+
+<div class="dot"></div>
+
+<div>
+<b>Bed demand approaching capacity</b>
+
+<p>
+Forecast suggests 201 beds may be required next month. Current capacity is 220.
+</p>
+
+</div>
+
+</div>
+
+
+<div class="insight bad">
+
+<div class="dot"></div>
+
+<div>
+<b>Orthopedics may remain underutilized</b>
+
+<p>
+Current utilization trends indicate excess capacity if patient demand remains unchanged.
+</p>
+
+</div>
+
+</div>
+
+
+<div class="insight warn">
+
+<div class="dot"></div>
+
+<div>
+<b>Operating costs expected to increase</b>
+
+<p>
+Forecasted operating cost is ₹31.2L next month. Review high-cost services.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- ================================================= -->
+<!-- DECISION SUPPORT -->
+<!-- ================================================= -->
+
+<section id="decisions" class="page">
+
+<div class="top">
+
+<div>
+<h1>Evidence-Based Decision Support</h1>
+<p>Recommended actions generated from institutional performance indicators</p>
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<h3>Priority Actions</h3>
+
+
+<div class="decision">
+
+<strong>1. Review Orthopedics resource allocation</strong>
+
+Current utilization is 65% while readmission is 7.5%.
+
+<br><br>
+
+<b>Recommended action:</b>
+Rebalance staff schedules toward peak-demand periods and investigate causes of readmission.
+
+</div>
+
+
+<div class="decision">
+
+<strong>2. Reduce OPD waiting time</strong>
+
+Average waiting time is 38 minutes against a target of less than 30 minutes.
+
+<br><br>
+
+<b>Recommended action:</b>
+Increase registration/consultation capacity during peak hours and monitor hourly queues.
+
+</div>
+
+
+<div class="decision">
+
+<strong>3. Prepare for increased bed demand</strong>
+
+Forecast predicts 201 occupied beds next month.
+
+<br><br>
+
+<b>Recommended action:</b>
+Prepare 15 additional operational beds while maintaining emergency capacity.
+
+</div>
+
+
+<div class="decision">
+
+<strong>4. Investigate readmissions</strong>
+
+Institutional readmission rate is 6.4%.
+
+<br><br>
+
+<b>Recommended action:</b>
+Analyze department-level readmissions and identify high-risk treatment pathways.
+
+</div>
+
+
+<div class="decision">
+
+<strong>5. Maintain Cardiology capacity</strong>
+
+Cardiology shows 90% utilization and strong financial and clinical outcomes.
+
+<br><br>
+
+<b>Recommended action:</b>
+Avoid reducing staffing and maintain adequate peak-period coverage.
+
+</div>
+
+
+<div class="decision">
+
+<strong>6. Improve follow-up compliance</strong>
+
+Follow-up compliance is 82% against a target of 90%.
+
+<br><br>
+
+<b>Recommended action:</b>
+Use automated reminders and post-discharge follow-up workflows.
+
+</div>
+
+</div>
+
+
+<div class="grid3">
+
+<div class="panel">
+
+<h3>Financial Evidence</h3>
+
+<div class="kpi">
+
+<div class="kpi-value">
+₹17.4L
+</div>
+
+<div class="kpi-title">
+Operating profit
+</div>
+
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<h3>Clinical Evidence</h3>
+
+<div class="kpi">
+
+<div class="kpi-value">
+92%
+</div>
+
+<div class="kpi-title">
+Treatment success
+</div>
+
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<h3>Operational Evidence</h3>
+
+<div class="kpi">
+
+<div class="kpi-value">
+84.5%
+</div>
+
+<div class="kpi-title">
+Bed occupancy
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+</main>
+</div>
+
+
+
+<script>
+
+/* =====================================================
+   DATA
+===================================================== */
+
+const data=[
+
+{
+name:'Cardiology',
+patients:450,
+revenue:20,
+cost:12,
+util:90
+},
+
+{
+name:'Orthopedics',
+patients:500,
+revenue:15,
+cost:13,
+util:65
+},
+
+{
+name:'General Medicine',
+patients:800,
+revenue:10,
+cost:8,
+util:95
+},
+
+{
+name:'Pediatrics',
+patients:420,
+revenue:9,
+cost:6.5,
+util:78
+}
+
+];
+
+
+/* =====================================================
+   PAGE NAVIGATION
+===================================================== */
+
+function showPage(id,btn){
+
+document
+.querySelectorAll('.page')
+.forEach(x=>x.classList.remove('active'));
+
+document
+.getElementById(id)
+.classList.add('active');
+
+document
+.querySelectorAll('.nav button')
+.forEach(x=>x.classList.remove('active'));
+
+btn.classList.add('active');
+
+}
+
+
+/* =====================================================
+   ROI CALCULATOR
+===================================================== */
+
+function calcROI(){
+
+let investment=
+Number(document.getElementById('investment').value);
+
+let benefit=
+Number(document.getElementById('benefit').value);
+
+let cost=
+Number(document.getElementById('roiCost').value);
+
+if(investment<=0){
+
+document.getElementById('roiResult').innerHTML=
+'<b>Please enter a valid investment amount.</b>';
+
+return;
+
+}
+
+let netBenefit=benefit-cost;
+
+let roi=
+((netBenefit-investment)/investment)*100;
+
+let payback=
+investment/netBenefit;
+
+let decision=
+roi>=20
+?'Recommended for further evaluation'
+:'Requires management review';
+
+document.getElementById('roiResult').innerHTML=
+
+`
+<b>Estimated ROI: ${roi.toFixed(1)}%</b><br>
+
+Net Annual Benefit:
+₹${netBenefit.toLocaleString('en-IN')}<br>
+
+Estimated Payback:
+${payback.toFixed(2)} years<br>
+
+<b>Decision:</b> ${decision}
+`;
+
+}
+
+
+/* =====================================================
+   PERIOD FILTER
+===================================================== */
+
+function updatePeriod(v){
+
+if(v==='Last 90 days'){
+
+document.getElementById('rev').textContent='₹1.34Cr';
+
+document.getElementById('cost').textContent='₹82.1L';
+
+}
+
+else if(v==='Year to date'){
+
+document.getElementById('rev').textContent='₹5.16Cr';
+
+document.getElementById('cost').textContent='₹3.19Cr';
+
+}
+
+else{
+
+document.getElementById('rev').textContent='₹45.8L';
+
+document.getElementById('cost').textContent='₹28.4L';
+
+}
+
+}
+
+
+/* =====================================================
+   CHARTS
+===================================================== */
+
+
+/* Department efficiency */
+
+new Chart(
+document.getElementById('deptChart'),
+{
+type:'bar',
+
+data:{
+labels:data.map(d=>d.name),
+
+datasets:[
+
+{
+label:'Revenue (₹L)',
+data:data.map(d=>d.revenue)
+},
+
+{
+label:'Cost (₹L)',
+data:data.map(d=>d.cost)
+}
+
+]
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+
+}
+);
+
+
+/* Financial */
+
+new Chart(
+document.getElementById('financialChart'),
+{
+type:'line',
+
+data:{
+
+labels:[
+'Apr',
+'May',
+'Jun',
+'Jul',
+'Aug',
+'Sep'
+],
+
+datasets:[
+
+{
+label:'Revenue',
+data:[39,41,43,44,46,45.8],
+tension:.35
+},
+
+{
+label:'Expenditure',
+data:[27,28,29,28,29,28.4],
+tension:.35
+}
+
+]
+
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+
+}
+);
+
+
+/* Cost distribution */
+
+new Chart(
+document.getElementById('costChart'),
+{
+type:'doughnut',
+
+data:{
+
+labels:[
+'Staff',
+'Equipment',
+'Medicine',
+'Administration',
+'Other'
+],
+
+datasets:[
+
+{
+data:[
+42,
+18,
+16,
+14,
+10
+]
+}
+
+]
+
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+
+}
+);
+
+
+/* Staff */
+
+new Chart(
+document.getElementById('staffChart'),
+{
+type:'doughnut',
+
+data:{
+
+labels:data.map(d=>d.name),
+
+datasets:[
+
+{
+data:data.map(d=>d.util)
+}
+
+]
+
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+
+}
+);
+
+
+/* Bed occupancy */
+
+new Chart(
+document.getElementById('bedChart'),
+{
+type:'bar',
+
+data:{
+
+labels:[
+'Apr',
+'May',
+'Jun',
+'Jul',
+'Aug',
+'Sep'
+],
+
+datasets:[
+
+{
+label:'Occupied Beds',
+data:[
+171,
+176,
+180,
+182,
+184,
+186
+]
+},
+
+{
+label:'Total Capacity',
+data:[
+220,
+220,
+220,
+220,
+220,
+220
+]
+}
+
+]
+
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+
+}
+);
+
+
+/* Patient throughput */
+
+new Chart(
+document.getElementById('throughputChart'),
+{
+type:'line',
+
+data:{
+
+labels:[
+'Apr',
+'May',
+'Jun',
+'Jul',
+'Aug',
+'Sep'
+],
+
+datasets:[
+
+{
+label:'Patients',
+data:[
+1880,
+1940,
+2050,
+2110,
+2170,
+2360
+],
+tension:.35
+}
+
+]
+
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+
+}
+);
+
+
+/* Waiting time */
+
+new Chart(
+document.getElementById('waitingChart'),
+{
+type:'bar',
+
+data:{
+
+labels:[
+'Registration',
+'General OPD',
+'Cardiology',
+'Orthopedics',
+'Pharmacy'
+],
+
+datasets:[
+
+{
+label:'Average Wait (minutes)',
+data:[
+12,
+38,
+26,
+31,
+18
+]
+}
+
+]
+
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+
+}
+);
+
+
+/* Quality */
+
+new Chart(
+document.getElementById('qualityChart'),
+{
+type:'line',
+
+data:{
+
+labels:[
+'Apr',
+'May',
+'Jun',
+'Jul',
+'Aug',
+'Sep'
+],
+
+datasets:[
+
+{
+label:'Readmission %',
+data:[
+7.1,
+6.9,
+6.8,
+6.6,
+6.5,
+6.4
+],
+tension:.35
+},
+
+{
+label:'Complication %',
+data:[
+4.0,
+3.8,
+3.7,
+3.5,
+3.3,
+3.1
+],
+tension:.35
+}
+
+]
+
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+
+}
+);
+
+
+/* Treatment outcomes */
+
+new Chart(
+document.getElementById('outcomeChart'),
+{
+type:'bar',
+
+data:{
+
+labels:[
+'Cardiology',
+'Orthopedics',
+'General Medicine',
+'Pediatrics'
+],
+
+datasets:[
+
+{
+label:'Treatment Success %',
+data:[
+95,
+88,
+91,
+94
+]
+}
+
+]
+
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+
+}
+);
+
+
+/* Satisfaction */
+
+new Chart(
+document.getElementById('satisfactionChart'),
+{
+type:'doughnut',
+
+data:{
+
+labels:[
+'Very Satisfied',
+'Satisfied',
+'Neutral',
+'Dissatisfied'
+],
+
+datasets:[
+
+{
+data:[
+52,
+35,
+9,
+4
+]
+}
+
+]
+
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+
+}
+);
+
+
+/* Patient forecast */
+
+new Chart(
+document.getElementById('forecastChart'),
+{
+type:'line',
+
+data:{
+
+labels:[
+'Jun',
+'Jul',
+'Aug',
+'Sep',
+'Oct',
+'Nov'
+],
+
+datasets:[
+
+{
+label:'Historical / Forecast Patients',
+
+data:[
+2050,
+2180,
+2240,
+2360,
+2480,
+2610
+],
+
+tension:.35
+}
+
+]
+
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+
+}
+);
+
+
+/* Cost forecast */
+
+new Chart(
+document.getElementById('costForecastChart'),
+{
+type:'line',
+
+data:{
+
+labels:[
+'Jun',
+'Jul',
+'Aug',
+'Sep',
+'Oct',
+'Nov'
+],
+
+datasets:[
+
+{
+label:'Operating Cost (₹L)',
+
+data:[
+26.8,
+27.4,
+28.0,
+28.4,
+30.1,
+31.2
+],
+
+tension:.35
+}
+
+]
+
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+
+}
+);
+
+</script>
+
+</body>
+</html>

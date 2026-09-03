@@ -1524,7 +1524,7 @@ Investment (₹)
 </label>
 
 <label>
-Annual Revenue / Benefit (₹)
+Annual Net profit / Benefit (₹)
 <input id="benefit" type="number" value="1500000">
 </label>
 

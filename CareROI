@@ -905,8 +905,6 @@ Current Occupancy
 </table>
 
 </div>
-
-</section>
 <div class="panel" style="margin-top:18px">
 
 <h3>Doctor Distribution & Salary Analysis</h3>
@@ -1002,6 +1000,8 @@ Current Occupancy
 </table>
 
 </div>
+
+</section>
 
 
 <!-- ================================================= -->
